@@ -1,8 +1,10 @@
 package main
 
 import (
+	"context"
 	"crypto/tls"
 	"log"
+	"net"
 	"sync"
 	"time"
 
@@ -183,6 +185,21 @@ func (ws *WebSocketForwarder) open() error {
 		HandshakeTimeout: Timeout,
 		ReadBufferSize:   int(WSBufferSize),
 		WriteBufferSize:  int(WSBufferSize),
+	}
+
+	if BootstrapServer != "" {
+		netDialer := &net.Dialer{
+			Resolver: &net.Resolver{
+				PreferGo: true,
+				Dial: func(ctx context.Context, network, addr string) (net.Conn, error) {
+					var d net.Dialer
+					return d.DialContext(ctx, network, BootstrapServer)
+				},
+			},
+		}
+		dialer.NetDialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
+			return netDialer.DialContext(ctx, network, addr)
+		}
 	}
 
 	conn, _, err := dialer.Dial(ws.Addr, nil)

@@ -11,30 +11,32 @@ Or use the `Dockerfile` with slight modifications to the passed options.
 dow-proxy [OPTIONS]
 
 Options:
+  -bootstrap server
+        An optional plaintext DNS server IP address to be used to resolve the upstream server domain name
   -insecure
-    	Skip server certificate verification for upstream encrypted connections
+        Skip server certificate verification for upstream encrypted connections
   -listen [IP]:port
-    	Listening [IP]:port. IP is optional, leave empty to listen on all interfaces. (default ":53", ":80", or ":443" depending on server and TLS options)
+        Listening [IP]:port. IP is optional, leave empty to listen on all interfaces. (default ":53", ":80", or ":443" depending on server and TLS options)
   -max-ws number
-    	Maximum number of WebSockets to serve simultaneously (default 50)
+        Maximum number of WebSockets to serve simultaneously (default 50)
   -requests-per-ws number
-    	Maximum number of open DNS requests per WebSocket. Additional requests will be refused. (default 50)
+        Maximum number of open DNS requests per WebSocket. Additional requests will be refused. (default 50)
   -server
-    	Listen for WebSocket connections instead of plaintext DNS. Unless a TLS certificate and key are provided, the WebSocket connections will be unencrypted.
+        Listen for WebSocket connections instead of plaintext DNS. Unless a TLS certificate and key are provided, the WebSocket connections will be unencrypted.
   -timeout duration
-    	Maximum allowed time duration to wait for network activities (default 5s)
+        Maximum allowed time duration to wait for network activities (default 5s)
   -tls-cert file
-    	TLS certificate file path for encrypting WebSocket connections in server mode
+        TLS certificate file path for encrypting WebSocket connections in server mode
   -tls-key file
-    	TLS private key file path for encrypting WebSocket connections in server mode
+        TLS private key file path for encrypting WebSocket connections in server mode
   -udp-buffer bytes
-    	EDNS UDP buffer size in bytes (default 1232)
+        EDNS UDP buffer size in bytes (default 1232)
   -upstream server
-    	Upstream DNS server IP address or URL
+        Upstream DNS server IP address or URL
   -verbose
-    	Verbose output
+        Verbose output
   -ws-buffer bytes
-    	WebSocket read and write buffer size in bytes (default 512)
+        WebSocket read and write buffer size in bytes (default 512)
 ```
 ## Examples
 Start a server to host secure WebSocket connections, forwarding to Cloudflare's 1.1.1.1 using DNS over TLS.

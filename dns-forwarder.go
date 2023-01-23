@@ -1,8 +1,10 @@
 package main
 
 import (
+	"context"
 	"crypto/tls"
 	"log"
+	"net"
 
 	"github.com/miekg/dns"
 )
@@ -32,6 +34,18 @@ func (d *DNSForwarder) Forward(req *dns.Msg) *dns.Msg {
 	if d.TLSConfig != nil {
 		client.Net = "tcp-tls"
 		client.TLSConfig = d.TLSConfig
+		if BootstrapServer != "" {
+			client.Dialer = &net.Dialer{
+				Timeout: Timeout,
+				Resolver: &net.Resolver{
+					PreferGo: true,
+					Dial: func(ctx context.Context, network, addr string) (net.Conn, error) {
+						var d net.Dialer
+						return d.DialContext(ctx, network, BootstrapServer)
+					},
+				},
+			}
+		}
 	}
 
 	resp, _, err := client.Exchange(req, d.Addr)

@@ -19,6 +19,7 @@ var (
 	ListenAddr           string
 	UpstreamAddr         string
 	Upstream             Forwarder
+	BootstrapServer      string
 	Insecure             bool
 	Server               bool
 	TLSCertFile          string
@@ -35,6 +36,7 @@ func main() {
 	flag.BoolVar(&Verbose, "verbose", false, "Verbose output")
 	flag.StringVar(&ListenAddr, "listen", "", "Listening `[IP]:port`. IP is optional, leave empty to listen on all interfaces. (default \":53\", \":80\", or \":443\" depending on server and TLS options)")
 	flag.StringVar(&UpstreamAddr, "upstream", "", "Upstream DNS `server` IP address or URL")
+	flag.StringVar(&BootstrapServer, "bootstrap", "", "An optional plaintext DNS `server` IP address to be used to resolve the upstream server domain name")
 	flag.BoolVar(&Insecure, "insecure", false, "Skip server certificate verification for upstream encrypted connections")
 	flag.BoolVar(&Server, "server", false, "Listen for WebSocket connections instead of plaintext DNS. Unless a TLS certificate and key are provided, the WebSocket connections will be unencrypted.")
 	flag.StringVar(&TLSCertFile, "tls-cert", "", "TLS certificate `file` path for encrypting WebSocket connections in server mode")
@@ -77,6 +79,16 @@ func main() {
 		ListenAddr = addr
 	}
 
+	if BootstrapServer != "" {
+		if addr := getHostPort(BootstrapServer, 53, true, true); addr == "" {
+			fmt.Fprintf(flag.CommandLine.Output(), "invalid value %q for flag -bootstrap: invalid address\n", BootstrapServer)
+			flag.Usage()
+			os.Exit(2)
+		} else {
+			BootstrapServer = addr
+		}
+	}
+
 	if UpstreamAddr == "" {
 		fmt.Fprintln(flag.CommandLine.Output(), "flag required: -upstream")
 		flag.Usage()
@@ -93,8 +105,9 @@ func main() {
 
 	if Verbose {
 		log.Printf(
-			"upstream=%v, insecure=%v, udp-buffer=%v, ws-buffer=%v, max-ws=%v, requests-per-ws=%v, timeout=%v",
+			"upstream=%v, bootstrap=%v, insecure=%v, udp-buffer=%v, ws-buffer=%v, max-ws=%v, requests-per-ws=%v, timeout=%v",
 			Upstream.Address(),
+			BootstrapServer,
 			Insecure,
 			UDPBufferSize,
 			WSBufferSize,
