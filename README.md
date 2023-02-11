@@ -74,8 +74,3 @@ http {
     }
 }
 ```
-## Public test server
-A public server is available at `wss://dow-proxy.addr.tools`. It forwards all requests to Cloudflare's 1.1.1.1.
-```
-./dow-proxy -upstream wss://dow-proxy.addr.tools
-```
